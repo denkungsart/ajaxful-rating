@@ -1,5 +1,6 @@
 == 4.0.0 June 23, 2015
 * Replace jeweler with bundler for gem management
+* Use rails4 association syntax
 
 == 3.0.0.beta6 August 23, 2011
 * Move validation to Rate model
