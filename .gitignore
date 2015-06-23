@@ -1,5 +1,9 @@
-pkg
-doc
-.DS_Store
-*.gem
-.rvmrc
+/.bundle/
+/.yardoc
+/Gemfile.lock
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
