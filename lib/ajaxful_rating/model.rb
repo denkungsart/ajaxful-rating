@@ -116,11 +116,14 @@ module AjaxfulRating # :nodoc:
       sql = "SELECT DISTINCT u.* FROM #{self.class.user_class.table_name} u "\
         "INNER JOIN rates r ON u.id = r.rater_id WHERE "
 
-      sql << self.class.send(:sanitize_sql_for_conditions, {
+      # Code lifted from https://github.com/rails/rails/blob/d5902c9e7eaba4db4e79c464d623a7d7e6e2d0e3/activerecord/lib/active_record/sanitization.rb#L89 to avoid deprecation warning
+      table = Arel::Table.new(self.class.table_name, self.class.arel_engine).alias('r')
+      attrs = {
         :rateable_id => id,
         :rateable_type => self.class.base_class.name,
         :dimension => (dimension.to_s if dimension)
-      }, 'r')
+      }
+      sql << ActiveRecord::PredicateBuilder.build_from_hash(self.class, attrs, table).map { |b| self.class.connection.visitor.compile b }.join(' AND ')
 
       self.class.user_class.find_by_sql(sql)
     end
@@ -235,11 +238,14 @@ module AjaxfulRating # :nodoc:
       sql = "SELECT DISTINCT r2.* FROM rates r1 INNER JOIN "\
         "#{self.base_class.table_name} r2 ON r1.rateable_id = r2.id WHERE "
 
-      sql << sanitize_sql_for_conditions({
+      # Code lifted from https://github.com/rails/rails/blob/d5902c9e7eaba4db4e79c464d623a7d7e6e2d0e3/activerecord/lib/active_record/sanitization.rb#L89 to avoid deprecation warning
+      table = Arel::Table.new(table_name, arel_engine).alias('r1')
+      attrs = {
         :rateable_type => self.base_class.name,
         attr_name => attr_value,
         :dimension => (dimension.to_s if dimension)
-      }, 'r1')
+      }
+      sql << ActiveRecord::PredicateBuilder.build_from_hash(self, attrs, table).map { |b| connection.visitor.compile b }.join(' AND ')
 
       find_by_sql(sql)
     end
