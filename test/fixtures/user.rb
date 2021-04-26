@@ -1,3 +1,3 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   ajaxful_rater
 end

@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + "/../test_helper"
+require "#{File.dirname(__FILE__)}/../test_helper"
 
 class ModelTest < ActiveSupport::TestCase
   include ActiveRecord::TestFixtures
@@ -19,7 +19,7 @@ class ModelTest < ActiveSupport::TestCase
 
   def test_rate_higher_than_max_stars
     assert_equal Car.max_stars, 10
-    assert !@audi.rate(15, User.first)
+    assert_not @audi.rate(15, User.first)
   end
 
   def test_already_rated_error
@@ -34,7 +34,7 @@ class ModelTest < ActiveSupport::TestCase
     assert @audi.rated_by?(@denis)
     stars = @audi.rate_by(@denis).stars
 
-    assert_no_difference 'Rate.count' do
+    assert_no_difference "Rate.count" do
       @audi.rate(1, @denis)
     end
     assert_equal @audi.rate_by(@denis).stars, 1
@@ -42,17 +42,16 @@ class ModelTest < ActiveSupport::TestCase
   end
 
   def test_new_rating
-    assert_difference 'Rate.count', 1 do
+    assert_difference "Rate.count", 1 do
       @audi.rate(5, @denis, :price)
     end
   end
 
   def test_raters
     assert_equal @audi.raters.size, 2
-    assert_difference 'Rate.count', 1 do
-      @audi.rate(3, User.create(:name => "Bob"))
+    assert_difference "Rate.count", 1 do
+      @audi.rate(3, User.create(name: "Bob"))
     end
     assert_equal @audi.raters.size, 3
   end
-
 end

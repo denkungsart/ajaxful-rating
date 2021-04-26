@@ -7,11 +7,11 @@ module AjaxfulRating # :nodoc:
     end
 
     def rule(selector, attrs)
-      @rules[selector] = self.class.stringify_properties(attrs) unless @rules.has_key?(selector)
+      @rules[selector] = self.class.stringify_properties(attrs) unless @rules.key?(selector)
     end
 
     def to_css
-      css = ''
+      css = ""
       @rules.each do |key, value|
         css << "#{key} {#{value}}\n"
       end
@@ -19,7 +19,7 @@ module AjaxfulRating # :nodoc:
     end
 
     def self.stringify_properties(properties)
-      css = ''
+      css = ""
       properties.each do |key, value|
         value = value.is_a?(Integer) || value.is_a?(Float) ? "#{value}px" : value
         css << "#{key.to_s.underscore.dasherize}: #{value}; "

@@ -18,9 +18,9 @@ module AjaxfulRating # :nodoc:
     #     ajaxful_rateable :stars => 10, :cache_column => :custom_column
     #   end
     def ajaxful_rateable(options = {})
-      options[:class_name] ||= 'Rate'
-      has_many :rates_without_dimension, -> { where(:dimension => nil) }, :as => :rateable, :class_name => options[:class_name], :dependent => :destroy
-      has_many :raters_without_dimension, :through => :rates_without_dimension, :source => :rater
+      options[:class_name] ||= "Rate"
+      has_many :rates_without_dimension, -> { where(dimension: nil) }, as: :rateable, class_name: options[:class_name], dependent: :destroy
+      has_many :raters_without_dimension, through: :rates_without_dimension, source: :rater
 
       class << self
         def axr_config(dimension = nil)
@@ -28,9 +28,9 @@ module AjaxfulRating # :nodoc:
           @axr_config ||= {}
           dimension = dimension.to_sym
           @axr_config[dimension] ||= {
-            :stars => 5,
-            :allow_update => true,
-            :cache_column => :rating_average
+            stars: 5,
+            allow_update: true,
+            cache_column: :rating_average
           }
         end
 
@@ -39,15 +39,14 @@ module AjaxfulRating # :nodoc:
 
       if options[:dimensions].is_a?(Array)
         options[:dimensions].each do |dimension|
-          has_many "#{dimension}_rates", -> { where(:dimension => dimension.to_s) }, :dependent => :destroy, :class_name => 'Rate', :as => :rateable
-          has_many "#{dimension}_raters", :through => "#{dimension}_rates", :source => :rater
+          has_many "#{dimension}_rates", -> { where(dimension: dimension.to_s) }, dependent: :destroy, class_name: "Rate", as: :rateable
+          has_many "#{dimension}_raters", through: "#{dimension}_rates", source: :rater
 
           axr_config(dimension).update(options)
         end
       else
-          axr_config.update(options)
+        axr_config.update(options)
       end
-
 
       include AjaxfulRating::InstanceMethods
       extend AjaxfulRating::SingletonMethods
@@ -55,13 +54,12 @@ module AjaxfulRating # :nodoc:
 
     # Makes the association between user and Rate model.
     def ajaxful_rater(options = {})
-      has_many :ratings_given, options.merge(:class_name => "Rate", :foreign_key => :rater_id)
+      has_many :ratings_given, options.merge(class_name: "Rate", foreign_key: :rater_id)
     end
   end
 
   # Instance methods for the rateable object.
   module InstanceMethods
-
     # Proxy for axr_config singleton method.
     def axr_config(dimension = nil)
       self.class.axr_config(dimension)
@@ -78,18 +76,18 @@ module AjaxfulRating # :nodoc:
     #   end
     def rate(stars, user, dimension = nil)
       return false if (stars.to_i > self.class.max_stars) || (stars.to_i < 1)
-      raise Errors::AlreadyRatedError if (!self.class.axr_config(dimension)[:allow_update] && rated_by?(user, dimension))
+      raise Errors::AlreadyRatedError if !self.class.axr_config(dimension)[:allow_update] && rated_by?(user, dimension)
 
       rate = if self.class.axr_config(dimension)[:allow_update] && rated_by?(user, dimension)
-        rate_by(user, dimension)
-      else
-        rates(dimension).build.tap do |r|
-          r.rater = user
-        end
-      end
+               rate_by(user, dimension)
+             else
+               rates(dimension).build.tap do |r|
+                 r.rater = user
+               end
+             end
       rate.stars = stars
       rate.save!
-      self.update_cached_average(dimension)
+      update_cached_average(dimension)
     end
 
     # Builds the DOM id attribute for the wrapper in view.
@@ -99,10 +97,10 @@ module AjaxfulRating # :nodoc:
         if k == :dimension
           v.to_s
         else
-          v.to_s == 'true' ? k.to_s : "no-#{k}"
+          v.to_s == "true" ? k.to_s : "no-#{k}"
         end
       end
-      options = options.delete_if { |x| x.empty? }
+      options.delete_if(&:empty?)
       prefix = "ajaxful_rating"
       prefix << "_#{options.sort.join('_')}" unless options.empty?
       ApplicationController.helpers.dom_id(self, prefix)
@@ -117,13 +115,13 @@ module AjaxfulRating # :nodoc:
         "INNER JOIN rates r ON u.id = r.rater_id WHERE "
 
       # Code lifted from https://github.com/rails/rails/blob/d5902c9e7eaba4db4e79c464d623a7d7e6e2d0e3/activerecord/lib/active_record/sanitization.rb#L89 to avoid deprecation warning
-      table = Arel::Table.new(self.class.table_name, self.class.arel_engine).alias('r')
+      table = Arel::Table.new(self.class.table_name, self.class.arel_engine).alias("r")
       attrs = {
-        :rateable_id => id,
-        :rateable_type => self.class.base_class.name,
-        :dimension => (dimension.to_s if dimension)
+        rateable_id: id,
+        rateable_type: self.class.base_class.name,
+        dimension: dimension&.to_s
       }
-      sql << ActiveRecord::PredicateBuilder.build_from_hash(self.class, attrs, table).map { |b| self.class.connection.visitor.compile b }.join(' AND ')
+      sql << ActiveRecord::PredicateBuilder.build_from_hash(self.class, attrs, table).map { |b| self.class.connection.visitor.compile b }.join(" AND ")
 
       self.class.user_class.find_by_sql(sql)
     end
@@ -160,10 +158,10 @@ module AjaxfulRating # :nodoc:
     # Pass false as param to force the calculation if you are caching it.
     def rate_average(cached = true, dimension = nil)
       avg = if cached && self.class.caching_average?(dimension)
-        send(caching_column_name(dimension)).to_f
-      else
-        self.rates_sum(dimension).to_f / self.total_rates(dimension).to_f
-      end
+              send(caching_column_name(dimension)).to_f
+            else
+              rates_sum(dimension).to_f / total_rates(dimension)
+            end
       avg.nan? ? 0.0 : avg
     end
 
@@ -172,10 +170,10 @@ module AjaxfulRating # :nodoc:
     #
     # It may works as an alias for +dimension_rates+ methods.
     def rates(dimension = nil)
-      unless dimension.blank?
-        send("#{dimension}_rates")
-      else
+      if dimension.blank?
         rates_without_dimension
+      else
+        send("#{dimension}_rates")
       end
     end
 
@@ -187,13 +185,12 @@ module AjaxfulRating # :nodoc:
     # Updates the cached average column in the rateable model.
     def update_cached_average(dimension = nil)
       if self.class.caching_average?(dimension)
-        update_attribute caching_column_name(dimension), self.rate_average(false, dimension)
+        update_attribute caching_column_name(dimension), rate_average(false, dimension)
       end
     end
   end
 
   module SingletonMethods
-
     # Maximum value accepted when rating the model. Default is 5.
     #
     # Change it by passing the :stars option to +ajaxful_rateable+
@@ -225,27 +222,27 @@ module AjaxfulRating # :nodoc:
 
     # Finds the rateable object with the highest rate average.
     def find_most_popular(dimension = nil)
-      all.sort_by { |o| o.rate_average(true, dimension) }.last
+      all.max_by { |o| o.rate_average(true, dimension) }
     end
 
     # Finds the rateable object with the lowest rate average.
     def find_less_popular(dimension = nil)
-      all.sort_by { |o| o.rate_average(true, dimension) }.first
+      all.min_by { |o| o.rate_average(true, dimension) }
     end
 
     # Finds rateable objects by Rate's attribute.
     def find_statement(attr_name, attr_value, dimension = nil)
       sql = "SELECT DISTINCT r2.* FROM rates r1 INNER JOIN "\
-        "#{self.base_class.table_name} r2 ON r1.rateable_id = r2.id WHERE "
+        "#{base_class.table_name} r2 ON r1.rateable_id = r2.id WHERE "
 
       # Code lifted from https://github.com/rails/rails/blob/d5902c9e7eaba4db4e79c464d623a7d7e6e2d0e3/activerecord/lib/active_record/sanitization.rb#L89 to avoid deprecation warning
-      table = Arel::Table.new(table_name, arel_engine).alias('r1')
+      table = Arel::Table.new(table_name, arel_engine).alias("r1")
       attrs = {
-        :rateable_type => self.base_class.name,
+        :rateable_type => base_class.name,
         attr_name => attr_value,
-        :dimension => (dimension.to_s if dimension)
+        :dimension => dimension&.to_s
       }
-      sql << ActiveRecord::PredicateBuilder.build_from_hash(self, attrs, table).map { |b| connection.visitor.compile b }.join(' AND ')
+      sql << ActiveRecord::PredicateBuilder.build_from_hash(self, attrs, table).map { |b| connection.visitor.compile b }.join(" AND ")
 
       find_by_sql(sql)
     end
@@ -268,7 +265,7 @@ module AjaxfulRating # :nodoc:
     # Returns the name of the cache column for the passed dimension.
     def caching_column_name(dimension = nil)
       name = axr_config(dimension)[:cache_column].to_s
-      name += "_#{dimension.to_s.underscore}" unless dimension.blank?
+      name += "_#{dimension.to_s.underscore}" if dimension.present?
       name
     end
   end
