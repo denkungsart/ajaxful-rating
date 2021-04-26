@@ -91,12 +91,12 @@ module AjaxfulRating # :nodoc:
       end
 
       def link_star_tag(value, css_class)
-        query = {
+        query = remote_options.fetch(:params, {}).merge(
           stars: value,
           dimension: options[:dimension],
           small: options[:small],
           show_user_rating: options[:show_user_rating]
-        }.to_query
+        ).to_query
 
         options = {
           class: css_class,
