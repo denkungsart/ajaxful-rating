@@ -2,7 +2,7 @@ module AjaxfulRating # :nodoc:
   class StarsBuilder # :nodoc:
     include AjaxfulRating::Locale
 
-    attr_reader :rateable, :user, :options, :remote_options
+    attr_reader :rateable, :user, :options, :remote_options, :show_value
 
     def initialize(rateable, user_or_static, template, css_builder, options = {}, remote_options = {})
       @user = user_or_static unless user_or_static == :static
@@ -10,9 +10,10 @@ module AjaxfulRating # :nodoc:
       @template = template
       @css_builder = css_builder
       apply_stars_builder_options!(options, remote_options)
+      @show_value = calculate_show_value
     end
 
-    def show_value
+    def calculate_show_value
       if options[:show_user_rating]
         rate = rateable.rate_by(user, options[:dimension]) if user
         rate ? rate.stars : 0
