@@ -54,7 +54,7 @@ module AjaxfulRating # :nodoc:
 
     # Makes the association between user and Rate model.
     def ajaxful_rater(options = {})
-      has_many :ratings_given, options.merge(class_name: "Rate", foreign_key: :rater_id)
+      has_many :ratings_given, **options.merge(class_name: "Rate", foreign_key: :rater_id)
     end
   end
 
