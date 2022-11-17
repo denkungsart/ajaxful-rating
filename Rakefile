@@ -1,14 +1,8 @@
-require 'rubygems'
-require 'rake'
-require 'echoe'
+require "bundler/gem_tasks"
 
-Echoe.new('ajaxful_rating', '2.2.9.1') do |p|
-  p.description    = "Provides a simple way to add rating functionality to your application."
-  p.url            = "http://github.com/edgarjs/ajaxful-rating"
-  p.author         = "Edgar J. Suarez"
-  p.email          = "edgar.js@gmail.com"
-  p.ignore_pattern = ["tmp/*", "script/*"]
-  p.development_dependencies = []
+require "rake/testtask"
+Rake::TestTask.new do |t|
+  t.libs << "test"
+  t.test_files = FileList['test/**/*_test.rb']
+  t.verbose = true
 end
-
-Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].sort.each { |ext| load ext }

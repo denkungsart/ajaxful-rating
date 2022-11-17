@@ -1,4 +1,9 @@
-pkg
-doc
-.DS_Store
-ajaxful_rating*.gem
+/.bundle/
+/.yardoc
+/Gemfile.lock
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
