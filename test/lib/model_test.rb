@@ -3,6 +3,9 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 class ModelTest < ActiveSupport::TestCase
   include ActiveRecord::TestFixtures
 
+  self.fixture_path = AXR_FIXTURES_PATH
+  fixtures :all
+
   def setup
     @audi     = Car.find_by_name("Audi")
     @infinity = Car.find_by_name("Infinity")
@@ -18,7 +21,7 @@ class ModelTest < ActiveSupport::TestCase
   end
 
   def test_rate_higher_than_max_stars
-    assert_equal Car.max_stars, 10
+    assert_equal Car.max_stars(:speed), 10
     assert_not @audi.rate(15, User.first)
   end
 
@@ -31,6 +34,8 @@ class ModelTest < ActiveSupport::TestCase
   end
 
   def test_already_rated_and_allowed_to_update
+    Car.axr_config[:allow_update] = true
+
     assert @audi.rated_by?(@denis)
     stars = @audi.rate_by(@denis).stars
 
