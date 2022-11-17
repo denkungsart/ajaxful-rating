@@ -115,13 +115,14 @@ module AjaxfulRating # :nodoc:
         "INNER JOIN rates r ON u.id = r.rater_id WHERE "
 
       # Code lifted from https://github.com/rails/rails/blob/d5902c9e7eaba4db4e79c464d623a7d7e6e2d0e3/activerecord/lib/active_record/sanitization.rb#L89 to avoid deprecation warning
-      table = Arel::Table.new(self.class.table_name, self.class.arel_engine).alias("r")
+      table = Arel::Table.new(self.class.table_name).alias("r")
       attrs = {
         rateable_id: id,
         rateable_type: self.class.base_class.name,
         dimension: dimension&.to_s
       }
-      sql << ActiveRecord::PredicateBuilder.build_from_hash(self.class, attrs, table).map { |b| self.class.connection.visitor.compile b }.join(" AND ")
+
+      sql << attrs.map { |column, value| table[column].eq(value) }.reduce(:and).to_sql
 
       self.class.user_class.find_by_sql(sql)
     end
@@ -236,13 +237,14 @@ module AjaxfulRating # :nodoc:
         "#{base_class.table_name} r2 ON r1.rateable_id = r2.id WHERE "
 
       # Code lifted from https://github.com/rails/rails/blob/d5902c9e7eaba4db4e79c464d623a7d7e6e2d0e3/activerecord/lib/active_record/sanitization.rb#L89 to avoid deprecation warning
-      table = Arel::Table.new(table_name, arel_engine).alias("r1")
+      table = Arel::Table.new(table_name).alias("r1")
       attrs = {
         :rateable_type => base_class.name,
         attr_name => attr_value,
         :dimension => dimension&.to_s
       }
-      sql << ActiveRecord::PredicateBuilder.build_from_hash(self, attrs, table).map { |b| connection.visitor.compile b }.join(" AND ")
+
+      sql << attrs.map { |column, value| table[column].eq(value) }.reduce(:and).to_sql
 
       find_by_sql(sql)
     end
