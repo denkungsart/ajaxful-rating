@@ -54,7 +54,7 @@ module AjaxfulRating # :nodoc:
 
     # Makes the association between user and Rate model.
     def ajaxful_rater(options = {})
-      has_many :ratings_given, **options.merge(class_name: "Rate", foreign_key: :rater_id)
+      has_many :ratings_given, **options.merge(as: :rater, class_name: "Rate", foreign_key: :rater_id)
     end
   end
 
@@ -110,8 +110,8 @@ module AjaxfulRating # :nodoc:
     # passed dimension.
     #
     # It may works as an alias for +dimension_raters+ methods.
-    def raters(dimension = nil)
-      sql = "SELECT DISTINCT u.* FROM #{self.class.user_class.table_name} u "\
+    def raters(rater_type: 'User', dimension: nil)
+      sql = "SELECT DISTINCT u.* FROM #{self.class.user_class(rater_type: rater_type).table_name} u "\
         "INNER JOIN rates r ON u.id = r.rater_id WHERE "
 
       # Code lifted from https://github.com/rails/rails/blob/d5902c9e7eaba4db4e79c464d623a7d7e6e2d0e3/activerecord/lib/active_record/sanitization.rb#L89 to avoid deprecation warning
@@ -124,12 +124,12 @@ module AjaxfulRating # :nodoc:
 
       sql << attrs.map { |column, value| table[column].eq(value) }.reduce(:and).to_sql
 
-      self.class.user_class.find_by_sql(sql)
+      self.class.user_class(rater_type: rater_type).find_by_sql(sql)
     end
 
     # Finds the rate made by the user if he/she has already voted.
     def rate_by(user, dimension = nil)
-      rates(dimension).find_by_rater_id(user.id)
+      rates(dimension).find_by(rater_id: user.id, rater_type: user.class.base_class.name)
     end
 
     # Return true if the user has rated the object, otherwise false
@@ -201,19 +201,33 @@ module AjaxfulRating # :nodoc:
       axr_config(dimension)[:stars]
     end
 
-    # Name of the class for the user model.
-    def user_class_name
-      Rate.reflect_on_association(:rater).options[:class_name]
-    end
+    # Not useable for polymorphic rater. Name of the class for the user model.
+    # def user_class_name
+    #   Rate.reflect_on_association(:rater).options[:class_name]
+    # end
 
     # Gets the user's class
-    def user_class
-      user_class_name.constantize
+    def user_class(rater_type: 'User')
+      rater_type.constantize
     end
 
     # Finds all rateable objects rated by the +user+.
     def find_rated_by(user, dimension = nil)
-      find_statement(:rater_id, user.id, dimension)
+      sql = "SELECT DISTINCT r2.* FROM rates r1 INNER JOIN "\
+        "#{base_class.table_name} r2 ON r1.rateable_id = r2.id WHERE "
+
+      # Code lifted from https://github.com/rails/rails/blob/d5902c9e7eaba4db4e79c464d623a7d7e6e2d0e3/activerecord/lib/active_record/sanitization.rb#L89 to avoid deprecation warning
+      table = Arel::Table.new(table_name).alias("r1")
+      attrs = {
+        rateable_type: base_class.name,
+        rater_id: user.id,
+        rater_type: user.class.base_class.name,
+        dimension: dimension&.to_s
+      }
+
+      sql << attrs.map { |column, value| table[column].eq(value) }.reduce(:and).to_sql
+
+      find_by_sql(sql)
     end
 
     # Finds all rateable objects rated with +stars+.

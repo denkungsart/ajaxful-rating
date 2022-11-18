@@ -1,4 +1,4 @@
-require "#{File.dirname(__FILE__)}/../test_helper"
+require "#{File.dirname(__FILE__)}/../test_helper.rb"
 
 class ModelTest < ActiveSupport::TestCase
   include ActiveRecord::TestFixtures
@@ -11,13 +11,18 @@ class ModelTest < ActiveSupport::TestCase
     @infinity = Car.find_by_name("Infinity")
 
     @denis = User.find_by_name("Denis Odorcic")
+    @spirit = Rental.find_by_name("Spirit Rental")
   end
 
   def test_find_statement
     assert_equal Car.find_statement(:stars, 7).size, 0
-    assert_equal Car.find_statement(:stars, 8).size, 1
+    assert_equal Car.find_statement(:stars, 4).size, 2
     assert_equal Car.find_statement(:stars, 8, :speed).size, 1
     assert_equal Car.find_statement(:stars, 5, :reliability).size, 2
+  end
+
+  def test_find_rated_by
+    assert_equal Car.find_rated_by(@spirit).size, 1
   end
 
   def test_rate_higher_than_max_stars
@@ -53,7 +58,7 @@ class ModelTest < ActiveSupport::TestCase
   end
 
   def test_raters
-    assert_equal @audi.raters.size, 2
+    assert_equal @audi.raters(rater_type: "User").size, 2
     assert_difference "Rate.count", 1 do
       @audi.rate(3, User.create(name: "Bob"))
     end
