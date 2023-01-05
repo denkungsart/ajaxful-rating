@@ -41,28 +41,21 @@ rate_audi_john_speed:
 rate_audi_john_reliability:
   rater_id: 2 # John
   rater_type: User
-  rateable_id: 2 # Audi
+  rateable_id: 2 # porsche
   rateable_type: Car
   stars: 5
   dimension: reliability
 
-rate_audi_rental_burns:
+rate_porsche_rental_burns:
   rater_id: 1 # Rental Burns
   rater_type: Rental
-  rateable_id: 2 # Audi
+  rateable_id: 2 # porsche
   rateable_type: Car
   stars: 5
 
-rate_audi_rental_burns:
-  rater_id: 1 # Rental Burns
-  rater_type: Rental
-  rateable_id: 2 # Audi
-  rateable_type: Car
-  stars: 5
-
-rate_audi_rental_spirit:
+rate_porsche_rental_spirit:
   rater_id: 2 # Spirit Rental
   rater_type: Rental
-  rateable_id: 2 # Audi
+  rateable_id: 2 # porsche
   rateable_type: Car
   stars: 4

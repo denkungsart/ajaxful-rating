@@ -25,6 +25,11 @@ class ModelTest < ActiveSupport::TestCase
     assert_equal Car.find_rated_by(@spirit).size, 1
   end
 
+  def test_rated_by
+    assert_equal @infinity.rated_by?(@spirit), true
+    assert_equal @audi.rated_by?(@spirit), false
+  end
+
   def test_rate_higher_than_max_stars
     assert_equal Car.max_stars(:speed), 10
     assert_not @audi.rate(15, User.first)
@@ -52,8 +57,9 @@ class ModelTest < ActiveSupport::TestCase
   end
 
   def test_new_rating
-    assert_difference "Rate.count", 1 do
+    assert_difference "Rate.count", 2 do
       @audi.rate(5, @denis, :price)
+      @audi.rate(4, @spirit)
     end
   end
 
