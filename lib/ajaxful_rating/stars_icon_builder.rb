@@ -2,7 +2,9 @@ module AjaxfulRating # :nodoc:
   class StarsIconBuilder # :nodoc:
     include AjaxfulRating::Locale
 
-    attr_reader :rateable, :user, :options, :remote_options, :show_value
+    attr_reader :rateable, :user, :options, :remote_options, :template
+
+    delegate :content_tag, :concat, :fas_icon, :far_icon, :link_to, :safe_join, to: :template
 
     def initialize(rateable, user_or_static, template, options = {}, remote_options = {})
       @user = user_or_static unless user_or_static == :static
@@ -31,7 +33,7 @@ module AjaxfulRating # :nodoc:
           wrap: true,
           show_user_rating: false,
           force_static: false,
-          current_user: (@template.current_user if @template.respond_to?(:current_user))
+          current_user: (template.current_user if template.respond_to?(:current_user))
         }.merge(options)
 
         # Do not see the need at the moment
@@ -46,8 +48,8 @@ module AjaxfulRating # :nodoc:
         if @remote_options[:url].nil?
           rateable_name =  ActionView::RecordIdentifier.dom_class(rateable)
           url = "rate_#{rateable_name}_path"
-          if @template.respond_to?(url)
-            @remote_options[:url] = @template.send(url, rateable)
+          if template.respond_to?(url)
+            @remote_options[:url] = template.send(url, rateable)
           else
             raise(Errors::MissingRateRoute)
           end
@@ -56,26 +58,26 @@ module AjaxfulRating # :nodoc:
 
       def ratings_tag
         max_stars = rateable.class.max_stars.to_f
-        @template.content_tag(:ul, class: "ajaxful-rating", data: { controller: "star" }) do
-          @template.concat @template.safe_join(Array.new(max_stars) { |i| star_tag(i+1) })
+        content_tag(:ul, class: "ajaxful-rating", data: { controller: "star" }) do
+          concat safe_join(Array.new(max_stars) { |i| star_tag(i+1) })
         end
       end
 
       def star_tag(value)
         already_rated = rateable.rated_by?(user, options[:dimension]) if user && !rateable.axr_config(options[:dimension])[:allow_update]
         css_class = "stars-#{value}"
-        @template.content_tag(:li) do
+        content_tag(:li) do
           # maybe fix :current_user option/ since what is the point of passing it as an option?
           if !options[:force_static] && !already_rated && user && options[:current_user] == user
             link_star_tag(value, css_class)
           else
-            @template.content_tag(:span, star_icon(value), class: css_class, title: i18n(:current))
+            content_tag(:span, star_icon(value), class: css_class, title: i18n(:current))
           end
         end
       end
 
       def star_icon(value)
-        options = {
+        icon_options = {
           data: {
             star_target: "star",
             star_star_index_param: value - 1,
@@ -83,10 +85,10 @@ module AjaxfulRating # :nodoc:
               pointerleave->star#leave"
           }
         }
-        if value <= show_value
-          @template.fas_icon("star", options)
+        if value <= @show_value
+          fas_icon("star", icon_options)
         else
-          @template.far_icon("star", options)
+          far_icon("star", icon_options)
         end
       end
 
@@ -106,11 +108,11 @@ module AjaxfulRating # :nodoc:
 
         href = "#{remote_options[:url]}?#{query}"
 
-        @template.link_to(star_icon(value), href, options)
+        link_to(star_icon(value), href, options)
       end
       
       def wrapper_tag
-        @template.content_tag(:div, ratings_tag, class: "ajaxful-rating-wrapper",
+        content_tag(:div, ratings_tag, class: "ajaxful-rating-wrapper",
                                                  id: rateable.wrapper_dom_id(options))
       end
   end
