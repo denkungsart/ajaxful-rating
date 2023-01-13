@@ -56,7 +56,7 @@ module AjaxfulRating # :nodoc:
 
       def ratings_tag
         max_stars = rateable.class.max_stars.to_f
-        @template.content_tag(:ul, class: "ajaxful-rating") do
+        @template.content_tag(:ul, class: "ajaxful-rating", data: { controller: "star" }) do
           @template.concat @template.safe_join(Array.new(max_stars) { |i| star_tag(i+1) })
         end
       end
@@ -75,10 +75,18 @@ module AjaxfulRating # :nodoc:
       end
 
       def star_icon(value)
+        options = {
+          data: {
+            star_target: "star",
+            star_star_index_param: value - 1,
+            action: "pointerenter->star#enter
+              pointerleave->star#leave"
+          }
+        }
         if value <= show_value
-          @template.fas_icon("star")
+          @template.fas_icon("star", options)
         else
-          @template.far_icon("star")
+          @template.far_icon("star", options)
         end
       end
 

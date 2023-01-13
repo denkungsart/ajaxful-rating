@@ -10,8 +10,8 @@
     display: inline;
 }
 
-/* .ajaxful-rating a:hover,
-.ajaxful-rating a:active,
-.ajaxful-rating a:focus{
-    background-position: left bottom;
+/* Add app specific hover in vendor-overwrites
+.ajaxful-rating .hover {
+    font-weight: 900; # solid star
+    color: ; # app specific or default a:hover color
 } */
