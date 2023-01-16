@@ -36,10 +36,6 @@ module AjaxfulRating # :nodoc:
           current_user: (template.current_user if template.respond_to?(:current_user))
         }.merge(options)
 
-        # Do not see the need at the moment
-        # @options[:show_user_rating] = @options[:show_user_rating].to_s == "true"
-        # @options[:wrap] = @options[:wrap].to_s == "true"
-
         @remote_options = {
           url: nil,
           method: :post
@@ -67,7 +63,6 @@ module AjaxfulRating # :nodoc:
         already_rated = rateable.rated_by?(user, options[:dimension]) if user && !rateable.axr_config(options[:dimension])[:allow_update]
         css_class = "stars-#{value}"
         content_tag(:li) do
-          # maybe fix :current_user option/ since what is the point of passing it as an option?
           if !options[:force_static] && !already_rated && user && options[:current_user] == user
             link_star_tag(value, css_class)
           else

@@ -2,14 +2,6 @@ module AjaxfulRating # :nodoc:
   module Helpers
     include AjaxfulRating::Errors
 
-    # Outputs the required css file, and the dynamic CSS generated for the
-    # current page.
-    def ajaxful_rating_style
-      @axr_css ||= CSSBuilder.new
-      # stylesheet_link_tag('ajaxful_rating') +
-      content_tag(:style, @axr_css.to_css, type: "text/css")
-    end
-
     # Generates the stars list to submit a rate.
     #
     # It accepts the next options:
@@ -73,7 +65,6 @@ module AjaxfulRating # :nodoc:
     #       user_rating: "Your rating: %{value} out of %{max}"
     #       hover: "Rate %{value} out of %{max}"    def ratings_for(*args)
     def ratings_for(*args)
-      @axr_css ||= CSSBuilder.new
       options = args.extract_options!.to_hash.symbolize_keys.slice(:small, :remote_options, :wrap, :show_user_rating, :dimension, :force_static, :current_user)
       remote_options = options.delete(:remote_options) || {}
       rateable = args.shift
