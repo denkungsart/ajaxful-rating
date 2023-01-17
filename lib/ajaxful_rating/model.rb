@@ -91,18 +91,9 @@ module AjaxfulRating # :nodoc:
     end
 
     # Builds the DOM id attribute for the wrapper in view.
-    def wrapper_dom_id(options = {})
-      options = options.to_hash.symbolize_keys.slice(:small, :dimension)
-      options = options.map do |k, v|
-        if k == :dimension
-          v.to_s
-        else
-          v.to_s == "true" ? k.to_s : "no-#{k}"
-        end
-      end
-      options.delete_if(&:empty?)
+    def wrapper_dom_id(dimension = nil)
       prefix = "ajaxful_rating"
-      prefix << "_#{options.sort.join('_')}" unless options.empty?
+      prefix << "_#{dimension}" unless dimension.blank?
       ApplicationController.helpers.dom_id(self, prefix)
     end
 

@@ -5,7 +5,6 @@ module AjaxfulRating # :nodoc:
     # Generates the stars list to submit a rate.
     #
     # It accepts the next options:
-    # * <tt>:small</tt> Set this param to true to display smaller images. Default is false.
     # * <tt>:remote_options</tt> Hash of options for the link_to_remote function.
     # Default is {:method => :post, :url => rate_rateablemodel_path(rateable)}.
     # * <tt>:wrap</tt> Whether the star list is wrapped within a div tag or not. This is useful when page updating. Default is true.
@@ -28,10 +27,10 @@ module AjaxfulRating # :nodoc:
     # or pass <tt>:static</tt> to leave the list of stars static.
     #
     # Example:
-    #   <%= ratings_for @article, @user, :small => true %>
+    #   <%= ratings_for @article, @user %>
     #   # => Will use @user instead <tt>current_user</tt>
     #
-    #   <%= ratings_for @article, :static, :small => true %>
+    #   <%= ratings_for @article, :static %>
     #   # => Will produce a static list of stars showing the current rating average for @article.
     #
     # The user passed here will *not* be the one who submits the rate. It will be used only for the display behavior of the stars.
@@ -65,7 +64,7 @@ module AjaxfulRating # :nodoc:
     #       user_rating: "Your rating: %{value} out of %{max}"
     #       hover: "Rate %{value} out of %{max}"    def ratings_for(*args)
     def ratings_for(*args)
-      options = args.extract_options!.to_hash.symbolize_keys.slice(:small, :remote_options, :wrap, :show_user_rating, :dimension, :force_static, :current_user)
+      options = args.extract_options!.to_hash.symbolize_keys.slice(:remote_options, :wrap, :show_user_rating, :dimension, :force_static)
       remote_options = options.delete(:remote_options) || {}
       rateable = args.shift
       user = args.shift || (respond_to?(:current_user) ? current_user : raise(Errors::NoUserSpecified))
