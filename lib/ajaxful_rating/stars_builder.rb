@@ -1,5 +1,5 @@
 module AjaxfulRating # :nodoc:
-  class StarsIconBuilder # :nodoc:
+  class StarsBuilder # :nodoc:
     include AjaxfulRating::Locale
 
     attr_reader :rateable, :user, :options, :remote_options, :template

@@ -68,7 +68,7 @@ module AjaxfulRating # :nodoc:
       remote_options = options.delete(:remote_options) || {}
       rateable = args.shift
       user = args.shift || (respond_to?(:current_user) ? current_user : raise(Errors::NoUserSpecified))
-      StarsIconBuilder.new(rateable, user, self, options, remote_options).render
+      StarsBuilder.new(rateable, user, self, options, remote_options).render
     end
   end
 end
