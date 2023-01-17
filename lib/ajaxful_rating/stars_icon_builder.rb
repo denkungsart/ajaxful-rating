@@ -4,7 +4,7 @@ module AjaxfulRating # :nodoc:
 
     attr_reader :rateable, :user, :options, :remote_options, :template
 
-    delegate :content_tag, :concat, :fas_icon, :far_icon, :link_to, :safe_join, to: :template
+    delegate :content_tag, :concat, :link_to, :safe_join, to: :template
 
     def initialize(rateable, user_or_static, template, options = {}, remote_options = {})
       @user = user_or_static unless user_or_static == :static
@@ -81,9 +81,9 @@ module AjaxfulRating # :nodoc:
           }
         }
         if value <= @show_value
-          fas_icon("star", icon_options)
+          content_tag(:i, nil, icon_options.merge(class: "fas fa-star"))
         else
-          far_icon("star", icon_options)
+          content_tag(:i, nil, icon_options.merge(class: "far fa-star"))
         end
       end
 
