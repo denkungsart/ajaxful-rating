@@ -1,17 +1,17 @@
 .ajaxful-rating {
-    position: relative;
-    height: 25px;
-    overflow: hidden;
-    list-style: none;
-    padding: 0;
+  position: relative;
+  height: 25px;
+  overflow: hidden;
+  list-style: none;
+  padding: 0;
 }
 
 .ajaxful-rating li {
-    display: inline;
+  display: inline;
 }
 
 /* Example: Customize hover-effect
 .ajaxful-rating .hover {
-    font-weight: 900; # solid star
-    color: #f00;
+  font-weight: 900; # solid star
+  color: #f00;
 } */
