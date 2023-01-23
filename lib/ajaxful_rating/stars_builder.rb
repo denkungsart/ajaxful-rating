@@ -71,15 +71,7 @@ module AjaxfulRating # :nodoc:
         end
       end
 
-      def star_icon(value)
-        icon_options = {
-          data: {
-            star_target: "star",
-            star_star_index_param: value - 1,
-            action: "pointerenter->star#enter
-              pointerleave->star#leave"
-          }
-        }
+      def star_icon(value, icon_options = {})
         if value <= @show_value
           content_tag(:i, nil, icon_options.merge(class: "fas fa-star"))
         else
@@ -101,9 +93,18 @@ module AjaxfulRating # :nodoc:
           remote: true
         }
 
+        icon_options = {
+          data: {
+            star_target: "star",
+            star_star_index_param: value - 1,
+            action: "pointerenter->star#enter
+              pointerleave->star#leave"
+          }
+        }
+
         href = "#{remote_options[:url]}?#{query}"
 
-        link_to(star_icon(value), href, options)
+        link_to(star_icon(value, icon_options), href, options)
       end
       
       def wrapper_tag

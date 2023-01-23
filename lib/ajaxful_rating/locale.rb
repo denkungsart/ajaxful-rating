@@ -21,7 +21,7 @@ module AjaxfulRating # :nodoc:
             end
       default = DEFAULTS[key]
       key = "ajaxful_rating.helper.#{key}"
-      I18n.t(key, value: (value || show_value),
+      I18n.t(key, value: (value || @show_value),
                   max: rateable.class.max_stars, default: default)
     end
   end
