@@ -1,9 +1,9 @@
 .ajaxful-rating {
   position: relative;
   height: 25px;
+  padding: 0;
   overflow: hidden;
   list-style: none;
-  padding: 0;
 }
 
 .ajaxful-rating li {
