@@ -54,7 +54,7 @@ module AjaxfulRating # :nodoc:
 
       def ratings_tag
         max_stars = rateable.class.max_stars.to_f
-        content_tag(:ul, class: "ajaxful-rating", data: { controller: "star" }) do
+        content_tag(:ul, class: "ajaxful-rating") do
           concat safe_join(Array.new(max_stars) { |i| star_tag(i+1) })
         end
       end
@@ -66,7 +66,8 @@ module AjaxfulRating # :nodoc:
           if !options[:force_static] && !already_rated && user && options[:current_user] == user
             link_star_tag(value, css_class)
           else
-            content_tag(:span, star_icon(value), class: css_class, title: i18n(:current))
+            icon_options = options[:data_action].present? ? star_icon_options(value) : {}
+            content_tag(:span, star_icon(value, icon_options), class: css_class, title: i18n(:current))
           end
         end
       end
@@ -93,18 +94,20 @@ module AjaxfulRating # :nodoc:
           remote: true
         }
 
+        href = "#{remote_options[:url]}?#{query}"
+
+        link_to(star_icon(value, star_icon_options(value)), href, options)
+      end
+
+      def star_icon_options(value)
         icon_options = {
           data: {
             star_target: "star",
             star_star_index_param: value - 1,
-            action: "pointerenter->star#enter
-              pointerleave->star#leave"
+            action: safe_join(["pointerenter->star#enter pointerleave->star#leave", options[:data_action]].compact_blank, " ")
           }
         }
-
-        href = "#{remote_options[:url]}?#{query}"
-
-        link_to(star_icon(value, icon_options), href, options)
+        icon_options
       end
       
       def wrapper_tag

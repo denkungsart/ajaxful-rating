@@ -64,7 +64,7 @@ module AjaxfulRating # :nodoc:
     #       user_rating: "Your rating: %{value} out of %{max}"
     #       hover: "Rate %{value} out of %{max}"    def ratings_for(*args)
     def ratings_for(*args)
-      options = args.extract_options!.to_hash.symbolize_keys.slice(:remote_options, :wrap, :show_user_rating, :dimension, :force_static)
+      options = args.extract_options!.to_hash.symbolize_keys.slice(:remote_options, :wrap, :show_user_rating, :dimension, :force_static, :data_action)
       remote_options = options.delete(:remote_options) || {}
       rateable = args.shift
       user = args.shift || (respond_to?(:current_user) ? current_user : raise(Errors::NoUserSpecified))
