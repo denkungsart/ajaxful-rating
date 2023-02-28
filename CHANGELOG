@@ -1,3 +1,8 @@
+== 5.0.0 January 18, 2023
+* Update rater to be polymorphic
+* Replace star pngs with font awesome star icons
+* Remove :small helper option
+
 == 4.0.0 June 23, 2015
 * Replace jeweler with bundler for gem management
 * Use rails4 association syntax

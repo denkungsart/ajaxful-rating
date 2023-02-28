@@ -17,11 +17,5 @@ module AjaxfulRating # :nodoc:
         "You need to specify a user instance or create a helper with the name current_user."
       end
     end
-
-    class MissingStarsCSSBuilder < StandardError
-      def to_s
-        "Add a call to ajaxful_rating_style within the head of your layout."
-      end
-    end
   end
 end

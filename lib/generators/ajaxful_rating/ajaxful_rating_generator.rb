@@ -19,9 +19,8 @@ class AjaxfulRatingGenerator < Rails::Generators::NamedBase
   end
 
   def create_layout
-    copy_file "images/star.png", "assets/images/ajaxful_rating/star.png"
-    copy_file "images/star_small.png", "assets/images/ajaxful_rating/star_small.png"
     copy_file "style.css", "assets/stylesheets/ajaxful_rating.css.scss"
+    copy_file "star_controller.js", "javascript/controllers/star_controller.js"
   end
 
   # FIXME: Should be proxied to ActiveRecord::Generators::Base

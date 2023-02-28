@@ -2,18 +2,9 @@ module AjaxfulRating # :nodoc:
   module Helpers
     include AjaxfulRating::Errors
 
-    # Outputs the required css file, and the dynamic CSS generated for the
-    # current page.
-    def ajaxful_rating_style
-      @axr_css ||= CSSBuilder.new
-      # stylesheet_link_tag('ajaxful_rating') +
-      content_tag(:style, @axr_css.to_css, type: "text/css")
-    end
-
     # Generates the stars list to submit a rate.
     #
     # It accepts the next options:
-    # * <tt>:small</tt> Set this param to true to display smaller images. Default is false.
     # * <tt>:remote_options</tt> Hash of options for the link_to_remote function.
     # Default is {:method => :post, :url => rate_rateablemodel_path(rateable)}.
     # * <tt>:wrap</tt> Whether the star list is wrapped within a div tag or not. This is useful when page updating. Default is true.
@@ -36,10 +27,10 @@ module AjaxfulRating # :nodoc:
     # or pass <tt>:static</tt> to leave the list of stars static.
     #
     # Example:
-    #   <%= ratings_for @article, @user, :small => true %>
+    #   <%= ratings_for @article, @user %>
     #   # => Will use @user instead <tt>current_user</tt>
     #
-    #   <%= ratings_for @article, :static, :small => true %>
+    #   <%= ratings_for @article, :static %>
     #   # => Will produce a static list of stars showing the current rating average for @article.
     #
     # The user passed here will *not* be the one who submits the rate. It will be used only for the display behavior of the stars.
@@ -73,12 +64,26 @@ module AjaxfulRating # :nodoc:
     #       user_rating: "Your rating: %{value} out of %{max}"
     #       hover: "Rate %{value} out of %{max}"    def ratings_for(*args)
     def ratings_for(*args)
-      @axr_css ||= CSSBuilder.new
-      options = args.extract_options!.to_hash.symbolize_keys.slice(:small, :remote_options, :wrap, :show_user_rating, :dimension, :force_static, :current_user)
+      options = args.extract_options!.to_hash.symbolize_keys.slice(:remote_options, :wrap, :show_user_rating, :dimension, :force_static)
       remote_options = options.delete(:remote_options) || {}
       rateable = args.shift
       user = args.shift || (respond_to?(:current_user) ? current_user : raise(Errors::NoUserSpecified))
-      StarsBuilder.new(rateable, user, self, @axr_css, options, remote_options).render
+      StarsBuilder.new(rateable, user, self, options, remote_options).render
+    end
+
+    # Allow star_icon_options to be used outside of the gem
+    # Sets options w/ settings for stimulus star controller
+    # star_index is the index of the star icon (star value - 1)
+    # It accepts the next icon_options:
+    # * <tt>data_action</tt>: an additional action use in the star controller
+    def star_icon_options(star_index, icon_options = {})
+      {
+        data: {
+          star_target: "star",
+          star_star_index_param: star_index,
+          action: safe_join(["pointerenter->star#enter pointerleave->star#leave", icon_options[:data_action]].compact_blank, " ")
+        }
+      }
     end
   end
 end
