@@ -4,7 +4,7 @@ module AjaxfulRating # :nodoc:
 
     attr_reader :rateable, :user, :options, :remote_options, :template
 
-    delegate :content_tag, :concat, :link_to, :safe_join, to: :template
+    delegate :content_tag, :concat, :link_to, :safe_join, :star_icon_options, to: :template
 
     def initialize(rateable, user_or_static, template, options = {}, remote_options = {})
       @user = user_or_static unless user_or_static == :static
@@ -54,7 +54,7 @@ module AjaxfulRating # :nodoc:
 
       def ratings_tag
         max_stars = rateable.class.max_stars.to_f
-        content_tag(:ul, class: "ajaxful-rating", data: { controller: "star" }) do
+        content_tag(:ul, class: "ajaxful-rating") do
           concat safe_join(Array.new(max_stars) { |i| star_tag(i+1) })
         end
       end
@@ -93,18 +93,10 @@ module AjaxfulRating # :nodoc:
           remote: true
         }
 
-        icon_options = {
-          data: {
-            star_target: "star",
-            star_star_index_param: value - 1,
-            action: "pointerenter->star#enter
-              pointerleave->star#leave"
-          }
-        }
-
         href = "#{remote_options[:url]}?#{query}"
 
-        link_to(star_icon(value, icon_options), href, options)
+        # Pass index of current star
+        link_to(star_icon(value, star_icon_options(value - 1)), href, options)
       end
       
       def wrapper_tag

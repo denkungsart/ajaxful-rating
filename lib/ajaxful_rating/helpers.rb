@@ -70,6 +70,21 @@ module AjaxfulRating # :nodoc:
       user = args.shift || (respond_to?(:current_user) ? current_user : raise(Errors::NoUserSpecified))
       StarsBuilder.new(rateable, user, self, options, remote_options).render
     end
+
+    # Allow star_icon_options to be used outside of the gem
+    # Sets options w/ settings for stimulus star controller
+    # star_index is the index of the star icon (star value - 1)
+    # It accepts the next icon_options:
+    # * <tt>data_action</tt>: an additional action use in the star controller
+    def star_icon_options(star_index, icon_options = {})
+      {
+        data: {
+          star_target: "star",
+          star_star_index_param: star_index,
+          action: safe_join(["pointerenter->star#enter pointerleave->star#leave", icon_options[:data_action]].compact_blank, " ")
+        }
+      }
+    end
   end
 end
 
