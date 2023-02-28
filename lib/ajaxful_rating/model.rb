@@ -157,10 +157,10 @@ module AjaxfulRating # :nodoc:
       avg.nan? ? 0.0 : avg
     end
 
-    # Overrides the default +rates+ method and returns the proper array
+    # Overrides the default +rates+ method and returns the propper array
     # for the dimension passed.
     #
-    # It works as an alias for +dimension_rates+ methods.
+    # It may works as an alias for +dimension_rates+ methods.
     def rates(dimension = nil)
       if dimension.blank?
         rates_without_dimension
